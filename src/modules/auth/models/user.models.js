@@ -53,9 +53,11 @@ const schema = Schema(
 
 schema.pre('save', async function(next) {
   try {
-    if (!this.createdAt) return next()
-    const salt = await genSalt(10)
-    this.password = await hash(this.password, salt)
+    if (this.password) {
+      const salt = await genSalt(10)
+      this.password = await hash(this.password, salt)
+    }
+    if (!this.isNew) return next()
     const token = crypto.randomBytes(20).toString('hex')
     const now = new Date()
     now.setHours(now.getHours() + 1)
