@@ -11,9 +11,9 @@ const router = new Router({
 
 router
   .post('/register', (ctx, next) => auth.register(ctx, next))
+  .post('/activate_account', (ctx, next) => auth.activateAccount(ctx, next))
   .get('/authenticate', (ctx, next) => auth.authenticate(ctx, next))
   .get('/forgot_password', (ctx, next) => auth.forgotPassword(ctx, next))
-  .get('/activate_account', (ctx, next) => auth.activateAccount(ctx, next))
 
 module.exports = app => {
   app.use(router.routes()).use(router.allowedMethods())
