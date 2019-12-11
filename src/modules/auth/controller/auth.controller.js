@@ -13,12 +13,15 @@ class AuthController {
 
       const result = await model.save({ new: true })
 
-      await ctx.mailer.sendMail({
-        to: result.email,
-        subject: 'active account',
-        from: 'adriano@email.com.br',
-        html: `<p>Seu cadastro esta quase completo, por favor, confirme seu cadastro: ${result.emailValidateToken}</p>`
-      })
+      // adicionar regexp para verificar se é production ou test
+      if (ctx.mailer && process.env.NODE_ENV === 'production') {
+        await ctx.mailer.sendMail({
+          to: result.email,
+          subject: 'active account',
+          from: 'adriano@email.com.br',
+          html: `<p>Seu cadastro esta quase completo, por favor, confirme seu cadastro: ${result.emailValidateToken}</p>`
+        })
+      }
 
       result.password = undefined
 
@@ -75,12 +78,14 @@ class AuthController {
         }
       })
 
-      await ctx.mailer.sendMail({
-        to: email,
-        from: 'adriano@email.com.br',
-        subject: 'message',
-        html: `<p>Renove sua senha com este token: ${token}</p>`
-      })
+      if (ctx.mailer && process.env.NODE_ENV === 'production') {
+        await ctx.mailer.sendMail({
+          to: email,
+          from: 'adriano@email.com.br',
+          subject: 'message',
+          html: `<p>Renove sua senha com este token: ${token}</p>`
+        })
+      }
 
       ctx.body = 'OK'
     } catch (error) {
@@ -117,8 +122,37 @@ class AuthController {
   }
 
   async authenticate(ctx, next) {
-    // try {
-    // } catch (error) {}
+    try {
+      const { email, password } = ctx.request.body
+
+      if (!email || !password)
+        throw unauthorized('invalid email or password', 'sample')
+
+      const user = await this.UserModel.findOne({ email }).select('+password')
+
+      if (!user) throw notFound(`User "${email}" Not Found`)
+
+      if (!user.enable) throw unauthorized('user not enable', 'sample')
+
+      const isMatch = await user.checkPassword(password)
+
+      if (!isMatch) throw unauthorized('invalid password', 'sample')
+
+      user.password = undefined
+
+      ctx.body = user
+
+      /**
+       * TODO: CRIAR MODULO TOKEN
+       */
+      // const token = await Token.sign({ _id: user.id })
+
+      // const session = await new SessionModule().createSession(user, token)
+
+      // return res.json(session)
+    } catch (error) {
+      ctx.throw(error)
+    }
   }
 }
 

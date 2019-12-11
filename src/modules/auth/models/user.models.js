@@ -1,4 +1,4 @@
-const { genSalt, hash /** compare */ } = require('bcryptjs')
+const { genSalt, hash, compare } = require('bcryptjs')
 const { boomify } = require('boom')
 const crypto = require('crypto')
 const { Schema, model } = require('mongoose')
@@ -50,6 +50,12 @@ const schema = Schema(
   },
   { timestamps: true }
 )
+
+schema.methods = {
+  async checkPassword(candidatePassword) {
+    return compare(candidatePassword, this.password)
+  }
+}
 
 schema.pre('save', async function(next) {
   try {

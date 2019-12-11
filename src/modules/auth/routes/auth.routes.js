@@ -14,7 +14,7 @@ router
   .post('/activate_account', (ctx, next) => auth.activateAccount(ctx, next))
   .post('/forgot_password', (ctx, next) => auth.forgotPassword(ctx, next))
   .post('/reset_password', (ctx, next) => auth.resetPassword(ctx, next))
-  .get('/authenticate', (ctx, next) => auth.authenticate(ctx, next))
+  .post('/authenticate', (ctx, next) => auth.authenticate(ctx, next))
 
 module.exports = app => {
   app.use(router.routes()).use(router.allowedMethods())
