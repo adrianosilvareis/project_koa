@@ -22,5 +22,7 @@ modular system, easy coupling and simple maintenance
 3. aided by editorconfig
 
 [LICENCE](LICENCE.md)
+
 [CONTRIBUTING](CONTRIBUTING.md)
+
 [CHANGELOG](CHANGELOG.md)
