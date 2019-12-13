@@ -1,4 +1,5 @@
-const crypto = require('crypto')
+const crypto = require('../../../lib')('crypto')
+
 const { notFound, unauthorized } = require('boom')
 
 class AuthController {
@@ -66,7 +67,7 @@ class AuthController {
 
       if (!user) throw notFound('User not found')
 
-      const token = crypto.randomBytes(20).toString('hex')
+      const token = crypto.randomizeToken()
 
       const now = new Date()
       now.setHours(now.getHours() + 1)
@@ -140,16 +141,9 @@ class AuthController {
 
       user.password = undefined
 
-      ctx.body = user
+      const token = await ctx.token.sign({ _id: user.id })
 
-      /**
-       * TODO: CRIAR MODULO TOKEN
-       */
-      // const token = await Token.sign({ _id: user.id })
-
-      // const session = await new SessionModule().createSession(user, token)
-
-      // return res.json(session)
+      ctx.body = token
     } catch (error) {
       ctx.throw(error)
     }

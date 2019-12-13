@@ -1,6 +1,5 @@
-const { genSalt, hash, compare } = require('bcryptjs')
+const crypto = require('../../../lib')('crypto')
 const { boomify } = require('boom')
-const crypto = require('crypto')
 const { Schema, model } = require('mongoose')
 const uniqueValidator = require('mongoose-unique-validator')
 
@@ -53,18 +52,17 @@ const schema = Schema(
 
 schema.methods = {
   async checkPassword(candidatePassword) {
-    return compare(candidatePassword, this.password)
+    return crypto.decryptedPassword(candidatePassword, this.password)
   }
 }
 
 schema.pre('save', async function(next) {
   try {
     if (this.password) {
-      const salt = await genSalt(10)
-      this.password = await hash(this.password, salt)
+      this.password = await crypto.encryptedPassword(this.password)
     }
     if (!this.isNew) return next()
-    const token = crypto.randomBytes(20).toString('hex')
+    const token = crypto.randomizeToken()
     const now = new Date()
     now.setHours(now.getHours() + 1)
     this.emailValidateToken = token

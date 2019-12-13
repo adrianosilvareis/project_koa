@@ -1,0 +1,8 @@
+{
+  "signOptions":{
+    "expiresIn":"1 days"
+  },
+  "verifyOptions":{
+    "ignoreExpiration":true
+  }
+}
